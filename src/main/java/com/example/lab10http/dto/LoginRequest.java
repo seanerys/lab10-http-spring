@@ -1,11 +1,11 @@
 package com.example.lab10http.dto;
 
-public class RegisterRequest {
+public class LoginRequest {
 
     private String username;
     private String password;
 
-    public RegisterRequest() {
+    public LoginRequest() {
     }
 
     public String getUsername() {

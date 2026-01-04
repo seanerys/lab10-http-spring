@@ -17,31 +17,52 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 60)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Role role = Role.ROLE_USER;
+    @Column(nullable = false)
+    private Role role;
 
-    public AppUser() {}
+    // JPA needs this
+    public AppUser() {
+    }
 
+    // This is the constructor AuthController uses
     public AppUser(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
-    public Role getRole() { return role; }
+    public Long getId() {
+        return id;
+    }
 
-    public void setId(Long id) { this.id = id; }
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
-    public void setRole(Role role) { this.role = role; }
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
