@@ -27,6 +27,10 @@ public class AppUser {
     @Column(nullable = false)
     private Role role;
 
+    // Added for Lab 13: Store refresh token for rotation and invalidation
+    @Column
+    private String refreshToken;
+
     // JPA needs this
     public AppUser() {
     }
@@ -54,6 +58,11 @@ public class AppUser {
         return role;
     }
 
+    // Added Getter for Refresh Token
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -64,5 +73,10 @@ public class AppUser {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    // Added Setter for Refresh Token
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

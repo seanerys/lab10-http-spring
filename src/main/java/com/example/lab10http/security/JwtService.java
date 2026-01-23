@@ -3,6 +3,7 @@ package com.example.lab10http.security;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,9 @@ public class JwtService {
     @Value("${app.jwt.expiration-ms}")
     private long jwtExpirationMs;
 
+    // Fixed refresh expiration: 7 days (604800000 ms) as per Lab 13 requirements
+    private final long refreshExpirationMs = 604800000;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -37,13 +41,24 @@ public class JwtService {
         return resolver.apply(claims);
     }
 
+    // Generates the standard short-lived Access Token [cite: 15]
     public String generateToken(UserDetails userDetails) {
-        return generateToken(Map.of(), userDetails);
+        return buildToken(new HashMap<>(), userDetails, jwtExpirationMs);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    // Generates the long-lived Refresh Token [cite: 16]
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpirationMs);
+    }
+
+    // Helper method to build tokens with specific durations [cite: 19, 20]
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtExpirationMs);
+        Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .setClaims(extraClaims)
@@ -55,10 +70,11 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    // Rejects tokens that have passed their expiration date [cite: 21]
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -76,7 +92,6 @@ public class JwtService {
         try {
             keyBytes = Decoders.BASE64.decode(jwtSecret);
         } catch (Exception ex) {
-            // supports secrets containing '-' '_' (Base64URL)
             keyBytes = Decoders.BASE64URL.decode(jwtSecret);
         }
         return Keys.hmacShaKeyFor(keyBytes);

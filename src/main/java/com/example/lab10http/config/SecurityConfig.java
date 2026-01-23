@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,18 +30,26 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // H2 console
-                .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                // protected endpoints
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                .anyRequest().authenticated()
+                // Lab 13: Task 2 - Security Headers (App Hardening) [cite: 23, 76]
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // Prevents clickjacking [cite: 33, 35]
+                        .contentTypeOptions(Customizer.withDefaults()) // Use contentTypeOptions() instead of
+                                                                       // xContentTypeOptions()
+                        .referrerPolicy(
+                                referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)) // [cite:
+                                                                                                                    // 38]
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; script-src 'self'; object-src 'none';")) // [cite:
+                                                                                                                // 36]
                 )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                // Optional: keep enabled (you'll see WWW-Authenticate: Basic when unauthorized)
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
@@ -50,12 +59,8 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Needed for AuthController login() to authenticate username/password
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }
-                
-                                
-                
