@@ -1,5 +1,7 @@
 package com.example.lab10http.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +11,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lab10http.dto.AuthResponse;
 import com.example.lab10http.dto.LoginRequest;
@@ -18,8 +23,6 @@ import com.example.lab10http.security.JwtService;
 import com.example.lab10http.user.AppUser;
 import com.example.lab10http.user.Role;
 import com.example.lab10http.user.UserRepository;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,7 +54,7 @@ public class AuthController {
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.status(409).build();
         }
-        Role role = "admin".equalsIgnoreCase(request.getUsername()) ? Role.ADMIN : Role.USER;
+        Role role = "sean".equalsIgnoreCase(request.getUsername()) ? Role.ADMIN : Role.USER;
         AppUser user = new AppUser(
                 request.getUsername(),
                 passwordEncoder.encode(request.getPassword()),

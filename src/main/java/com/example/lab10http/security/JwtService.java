@@ -2,8 +2,8 @@ package com.example.lab10http.security;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -41,22 +41,21 @@ public class JwtService {
         return resolver.apply(claims);
     }
 
-    // Generates the standard short-lived Access Token [cite: 15]
+    // Generates the standard short-lived Access Token
     public String generateToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(), userDetails, jwtExpirationMs);
     }
 
-    // Generates the long-lived Refresh Token [cite: 16]
+    // Generates the long-lived Refresh Token
     public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(), userDetails, refreshExpirationMs);
     }
 
-    // Helper method to build tokens with specific durations [cite: 19, 20]
+    // Helper method to build tokens with specific durations
     private String buildToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails,
-            long expiration
-    ) {
+            long expiration) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expiration);
 
@@ -74,7 +73,7 @@ public class JwtService {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    // Rejects tokens that have passed their expiration date [cite: 21]
+    // Rejects tokens that have passed their expiration date
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

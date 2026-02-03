@@ -2,7 +2,6 @@ package com.example.lab10http;
 
 import com.example.lab10http.user.AppUser;
 import com.example.lab10http.user.Role;
-import com.example.lab10http.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
